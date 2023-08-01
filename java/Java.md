@@ -1571,33 +1571,368 @@ System.in:标准输入流，默认从键盘输入
 
 System.out:标准输出流，默认从控制台输出
 
+# 9.网络编程
+
+## 9.1概述
+
+软件架构：C/S架构和B/S架构
+
+C/S架构：client/Server结构，指客户端和服务器结构，常见的程序有QQ，美团app等。
+
+B/S架构：Browser/Server结构，浏览器和服务器结构，常见的IE，谷歌，火狐等等。
+
+两种架构都离不开网络的支持。网络编程，就是在一定的协议下，实现两台计算机的通信的程序。
+
+实现网络传输的三要素：
+
+- IP地址：可以唯一标识一台主机
+
+- 端口号：可以唯一标识一个进程
+- 网络通信协议
+
+## 9.2 TCP和UDP协议
+
+TCP协议和UDP协议的对比：
+
+ TCP协议：
+
+- 进行通信的两个应用进程：客户端，服务端
+- 使用TCP协议前，先建立TCP连接，形成基于字节流的数据传输通道
+- 传输前，采用三次握手方式，点对点通信，是可靠的
+  - TCP协议使用重发机制，A向B发送消息后，没有收到B的回复，则会再次重复刚才发送的消息。
+- 可以进行大量的数据传输
+- 传输完毕，需要释放建立的连接，效率低
+
+UDP协议：
+
+- 进行通信的两个应用进程：发送端，接收端
+- 将数据，源，目的封装成数据包，不需要建立连接
+- 发送不管对方，接收方收到不确认，无法保证数据的完整性，不可靠。
+- 单个数据包的大小限制64K
+- 发送数据结束时无需释放资源，开销小，通信效率高。
+
+> TCP:可靠的连接（三次握手，四次挥手）进行大量数据的传输，效率低
+>
+> UDP：不可靠的连接，使用数据包传输（限制在64kb以内），效率高
+
+# 10.反射
+
+## 10.1反射概述
+
+1.反射出现背景：
+
+Java程序中，所有的对象有两种类型：编译时类型和运行时类型，而很多时候对象的两种类型不一致。Object obj = new String("hello");
+
+例如:变量或者形参声名类型时Object类型,但是程序却需要调用该对象的运行时类型的方法,该方法不是Object种的方法.这种情况该如何解决呢
+
+- 方案一:可以使用instanceof运算符进行判断,在使用强制类型转换即可
+- 方案二:编译时无法预知该对象和类的真实信息,程序只能依靠运行时信息来发现该对象和类的真实信息,所以就需要用到反射
+
+反射时被视为动态语言的关键,反射机制允许程序在运行期间借助于反射API取得任何类的内部信息，并且能操作任意对象的内部属性和方法。 
+
+> 1.面向对象中创建对象，调用属性方法等，使用反射和不使用反射的区别：
+>
+> 不使用反射，我们需要考虑其封装性。比如：除了Person类之后，就不能调用Person的私有成员。
+> 使用反射，我们就可以调用其所有的构造器，属性，方法，包括私有成员。
+>
+> 2.两种创建对象的方式，哪种用的多？场景？
+>
+> 开发者角度，主要是完成业务代码，对于相关的对象，方法的调用都是确定的，所以我们基本上使用的是非反射的方式。
+> 因为反射体现了动态性，可以在运行时动态的获取对象所属的类，动态的调用相关的方法，所以在设计框架的时候，会大量的使用反射。所以学习源码的时候用到反射。框架 = 注解 + 反射 + 设计模式
+>
+> 3.单例模式的饿汉式和懒汉式，私有化的构造器，此时通过反射可以创建单例模式中类的多个对象。
+>
+> 4.通过反射，可以调用类中的私有结构，是否与面向对象的封装性有冲突？是不是Java语言设计存在BUG？
+>
+> 不存在BUG！封装性是告诉我们不建议我们外部调用，但是万一需要调用的时候得有方法去调用，这就是反射的作用。有了反射就可以去调用私有成员，但是封装性不建议调用，就是可以不用，但是不能没有。
+
+反射的优缺点：
+
+优点：
+
+- 提高了Java程序的灵活性和扩展性，降低了耦合性，提高了自适应能力
+- 允许程序创建和控制任何类的对象，无需提前硬编码目标类
+
+缺点：
+
+- 反射的性能较低
+- 反射会模糊程序内部逻辑，可读性较差。
+
+## 10.2 Class类
+
+1.Class类的理解
+
+针对于编写好的.java源文件进行编译，会生成一个或多个.class字节码文件。接着使用对.class文件进行解释运行。这个解释运行的过程中，我们需要将.class文件加载（类的加载器）到内存中。加载到内存中的.class文件对应的结构即为Class的一个实例。例：Person.class
+
+Class类，描述类的类，是反射的源头
+
+> 注意:只要类的元素类型和维度一样,就是同一个类,例: int[] a = new int[10];int[] b = new int[20];这两个类反射的clazz是一个值
+
+2.获取Class实例的方法：
+
+```java
+@Test
+public void test4() throws ClassNotFoundException {
+    //方式一：通过运行时类的静态属性Class
+    Class clazz1 = Person.class;
+
+    //方式二：通过对象的getClass()方法
+    Person p1 = new Person();
+    Person p2 = new Student();
+    Class clazz2 = p1.getClass();
+    Class clazz3 = p2.getClass();
+    System.out.println(clazz1==clazz2);     //true
+    System.out.println(clazz2);     //class Person
+    System.out.println(clazz3);     //class Student
+    //方式三:调用Class的静态方法forName(String className)
+    Class clazz4 = Class.forName("Person");
+    System.out.println(clazz1 == clazz4);   //ture
+    //方法四:使用类的加载器
+    Class clazz5 = ClassLoader.getSystemClassLoader().loadClass("Person");
+    System.out.println(clazz1 == clazz5);   //true
+}
+```
+
+## 10.3 类的加载过程
+
+![image-20230729104500996](E:/cherry/studyNote/study/java/image-20230729104500996.png)
+
+步骤如下:
+
+过程1:类的装载(loading)
+
+将类的class文件读入内存,并为之创建一个java.lang.Class对象,此过程由类的加载器完成
+
+> 类的加载器：负责类的加载，并对应一个Class的实例
+>
+> - BootStrapClassLoader 启动类加载器
+>
+>   1. 使用C/C++编写，不能获取其实例
+>
+>   2. 负责加载Java的核心库（JAVA_HOME/jre/lib/rt.jar）
+>
+> - 继承于ClassLoader的类加载器
+>
+>   - ExtensionClassLoader 扩展类加载器
+>     1. java语言编写，由sun.misc.Launcher$ExtClassLoader实现。
+>     2. 从JDK安装的目录 jre/lib/ext子目录下加载类库。
+>   - ApplicationClassLoader 应用程序类加载器
+>     1. 我们自定义的类，默认使用的类的加载器。
+>   - 用户自定义类加载器
+>     1. 实现应用隔离（同一个类，在一个应用程序中，可以加载多份）
+>     2. 实现数据的加密
 
 
 
+过程2:链接(linking)
+
+- 验证:确保类的信息复合JVM规范.
+- 准备:正式为类变量(static)分配内存并设置类变量默认初始值.这些内存都在方法区分配
+- 解析:虚拟机常量池的符号引用替换为直接引用的过程
+
+过程3:初始化（initialization）
+
+执行类构造器 < clinit >()方法的过程。
+
+类构造器方法是由编译期自动收集类中所有类变量的赋值操作和静态代码块中的语句产生的。
+
+## 10.4 反射的应用
+
+1. 创建运行时类的对象：通过Class的实例直接调用newInstance方法即可
+
+但是该方法要满足两个条件：1.空参构造器，2.空参构造器的权限要足够。
+
+> JavaBean为什么要求当前类提供一个空参构造器？
+>
+> 1. 子类对象在实例化时，第一行默认调用父类的空参构造器。
+> 2. 在反射中，经常用来创建运行时类的对象，所以要求具备空参构造器，便于我们编写创建运行时类的对象的代码。
+
+在jdk9中，通过Constructor类调用newInstance()可以调用有参构造器。
+
+2.获取运行时类的内部结构
+
+- 获取运行时类的所有属性，所有方法，所有构造器
+
+- 获取运行时类的父类，接口，包，泛型，父类的泛型等
+
+- 调用指定的属性，方法，构造器。
+
+  1. 通过Class实例调用getDeclareField(String filedName)获取属性
+  2. setAccessible（true）确保属性可以访问
+  3. 通过Filed类的实例set/get方法，进行操作。
+
+  ```java
+  @Test
+  public void test3() throws Exception {
+      //调用私有构造器
+      Class<Person> clazz = Person.class;
+      Constructor<Person> constructor = clazz.getDeclaredConstructor(String.class, int.class);
+      constructor.setAccessible(true);
+      Person p1 = constructor.newInstance("Tom", 12);
+      System.out.println(p1);
+  
+      //调用私有属性
+      Field name = clazz.getDeclaredField("name");
+      name.setAccessible(true);
+      name.set(p1,"jerry");
+      System.out.println(name.get(p1));
+  
+      //调用私有方法
+      Method showNation = clazz.getDeclaredMethod("showNation", String.class);
+      showNation.setAccessible(true);
+      System.out.println(showNation.invoke(p1, "中国"));
+  }
+  ```
 
 
+# 11.新特性
+
+## 11.1 jdk8-Lambda表达式
+
+```java
+@Test
+public void test2(){
+    Comparator<Integer> com2 = new Comparator<Integer>() {
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            return Integer.compare(o1,o2);
+        }
+    };
+
+    Comparator<Integer> com1 = (Integer o1, Integer o2) -> {
+        return Integer.compare(o1,o2);
+    };
+    System.out.println(com1.compare(1,2));
+
+    //简化版
+    Comparator<Integer> com3 = (i1,i2) -> Integer.compare(i1,i2);
+
+    //方法引用
+    Comparator<Integer> com4 = Integer::compare;
+    System.out.println(com4.compare(1, 2));
+}
+```
+
+- -> : Lambda操作符
+- ->的左边:lambda的形参列表,对应要重写的方法的形参列表
+- ->的右边:lambda体,对应重写的方法体.
+
+lambda充当了接口实现类的对象,它是一个匿名函数.
+
+**函数式接口**:如果接口中只声明一个抽象方法，这个接口就叫做函数式接口。只有给函数式接口提供实现类的对象时，才能使用lambda表达式。
+
+语法规则总结：
+
+- ->左边，形参列表，参数的类型可以省略，如果形参只有一个，则小括号也可以省略
+- ->右边，lambda体，如果方法体中只有一条执行语句，则一堆大括号可以省略，如果return只有一条语句，则return和大括号可以同时省略。
+
+## 11.2 jdk8-方法引用
+
+方法引用：可以看作是基于lambda表达式的进一步刻画。
+
+当需要一个函数式接口的实例时，可以使用lambda表达式来提供实例，当满足一定的条件时，可以使用方法引用或者构造器引用替换lambda表达式。
+
+格式：  类（或者对象） ::  方法名
+
+## 11.3 jdk8-Stream API
+
+Stream API关注的时多个数据的计算，面向CPU的。集合关注的是数据的存储，面向内存的。
+
+Stream API 和集合的关系类似于 SQL和数据表的查询。
+
+使用说明：
+
+1. Stream自己不会存储元素
+2. Stream不会改变源对象，结果会返回一个新的Stream对象
+3. Stream是延迟执行的，意味着他们会等到需要结果的时候再执行。
+4. Stream一旦执行了操作，就不能再调用其它中间操作或者终止操作了。
+
+执行流程：
+
+步骤1：Stream的实例化
+
+步骤2：一系列的中间操作
+
+步骤3：执行终止操作。
+
+## 11.4 jdk8之后的新特性：语法层面
+
+- jshell工具
+- try-catch结构的变化：try（）{}
+- 局部变量的类型推断：var
+- instanceof的模式匹配   o1 instanceof String s
+- switch表达式，模式匹配
+- 文本块的使用:"""  文本块 """
+- 新的类型：record
+- 密封类：sealed class
+
+# 12.JDBC
+
+## 12.1 概述
+
+数据的持久化:把数据保存到可掉电式存储设备中供以后使用.一般时间过数据存储在数据库种.
+
+java中的数据存储技术：
+
+- JDBC直接访问数据库
+- JDO（Java Data Object）技术
+- 第三方框架：如Mybatis，Hibernate等
+
+JDBC是java访问数据库的基石，其他的技术只是封装了JDBC。
+
+## 12.2JDBC介绍
+
+- JDBC是一个独立于特定数据库管理系统，通用的SQL数据库存取和操作的公共接口，定义了用来访问数据库标准Java类库。
+- JDBC为访问不同的数据库提供了统一的途径。
+
+JDBC包括两个层次：
+
+- 面向应用的API，抽象接口，供开发人员使用，数据库的连接，Sql的操作等等
+- 面向驱动的API，供开发商开发数据库驱动程序使用。
+
+## 12.3 JDBC编写步骤
+
+配置文件：
+
+```properties
+#jdbc5.7版本 driver
+#driver=com.jdbc.mysql.driver
+#url=jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8
+#jdbc 8.0版本 driver
+username =root
+password=123456
+url=jdbc:mysql://localhost:3306/test?characterEncoding=utf8&useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true
+driver=com.mysql.cj.jdbc.Driver
+```
+
+代码：
+
+```java
+//优点：1.实现了数据和代码的分离，实现了解耦
+//	   2.如果需要修改配置信息，直接修改配置文件，避免重新打包
 
 
+@Test
+public void test1() throws Exception {
+    Properties properties = new Properties();
+    InputStream is = JDBCTest.class.getClassLoader().getResourceAsStream("jdbc.properties");
+    //1.加载配置文件
+    properties.load(is);
+    String driver = properties.getProperty("driver");
+    String username = properties.getProperty("username");
+    String password = properties.getProperty("password");
+    String url = properties.getProperty("url");
+    //2.加载驱动
+    Class.forName(driver);
+    //3.获取连接
+    Connection connection = DriverManager.getConnection(url, username, password);
+    System.out.println(connection);
+}
+```
 
+## 12.4 CRUD
 
+1.statement操作，可能会发生SQL注入问题。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+2.PreparedStatement操作：
 
