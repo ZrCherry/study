@@ -1936,5 +1936,5 @@ public void test1() throws Exception {
 
 2.PreparedStatement操作：可以操作BLOB类型的数据，可以实现更加高效的批量操作。
 
-
+代码见module jdbc.JDBCTest
 

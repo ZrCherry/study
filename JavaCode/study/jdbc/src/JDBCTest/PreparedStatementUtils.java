@@ -20,9 +20,11 @@ import java.util.List;
  */
 public class PreparedStatementUtils {
 
-    /*
-     * 通用的增删改操作接口。
-     * */
+    /**
+     * 通用的增删改操作接口
+     * @param sql
+     * @param args
+     */
     public void update(String sql,Object ...args){
         Connection connection = null;
         PreparedStatement ps = null;
@@ -37,6 +39,25 @@ public class PreparedStatementUtils {
             e.printStackTrace();
         }finally {
             JDBCUtils.close(connection,ps);
+        }
+    }
+    /*
+     * 通用的增删改操作接口。
+     * 考虑事务的接口，将connection作为参数传进来。
+     * */
+    public void update(Connection connection,String sql,Object ...args){
+        PreparedStatement ps = null;
+        try {
+            connection = JDBCUtils.getConection();
+            ps = connection.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i+1,args[i]);
+            }
+            ps.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            JDBCUtils.close(null,ps);
         }
     }
 
