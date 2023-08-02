@@ -1934,5 +1934,7 @@ public void test1() throws Exception {
 
 1.statement操作，可能会发生SQL注入问题。
 
-2.PreparedStatement操作：
+2.PreparedStatement操作：可以操作BLOB类型的数据，可以实现更加高效的批量操作。
+
+
 
