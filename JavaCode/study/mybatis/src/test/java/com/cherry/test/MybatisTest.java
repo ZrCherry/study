@@ -54,4 +54,30 @@ public class MybatisTest {
         sqlSession.close();
     }
 
+    @Test
+    public void testGetOne(){
+        String name = "cherry";
+        SqlSession sqlSession = SqlSessionUtil.getInstance();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        User userByName = mapper.getUserByName(name);
+        System.out.println(userByName);
+        sqlSession.close();
+    }
+
+    @Test
+    public void testUpdateById(){
+        User user = new User();
+        user.setId(3);
+        user.setAge(12);
+        user.setEmail("222@qq.com");
+        user.setGender("男");
+        user.setUsername("cherry");
+        user.setPassword("123456");
+        SqlSession sqlSession = SqlSessionUtil.getInstance();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        int i = mapper.updateById(user);
+        System.out.println(i);
+        sqlSession.close();
+    }
+
 }

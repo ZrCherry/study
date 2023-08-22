@@ -21,4 +21,8 @@ public interface UserMapper {
     int delete();
 
     List<User> list();
+
+    User getUserByName(String name);
+
+    int updateById(User user);
 }

@@ -11,11 +11,22 @@
         update t_user set username = "zr" where id = 2
     </update>
 
+    <update id="updateById">
+        update t_user set username = #{username},password = #{password},email = #{email},age = #{age},gender = #{gender}
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
     <delete id="delete">
         delete from t_user where id = 1
     </delete>
 
     <select id="list" resultType="user">
         select * from t_user
+    </select>
+
+    <select id="getUserByName" resultType="com.cherry.entity.User">
+        select * from t_user where username = #{name} limit 1
     </select>
 </mapper>

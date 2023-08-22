@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.EmpMapper">
+    <resultMap id="empResultMap" type="emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+    </resultMap>
+
+    <!--<resultMap id="empAndDeptResultMap" type="emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+        <result column="dept_id" property="dept.deptId"></result>
+        <result column="dept_name" property="dept.deptName"></result>
+    </resultMap>-->
+    <!--<resultMap id="empAndDeptResultMap" type="emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+        <association property="dept" javaType="Dept">
+            <id column="dept_id" property="deptId"></id>
+            <id column="dept_name" property="deptName"></id>
+        </association>
+    </resultMap>
+-->
+
+    <resultMap id="empAndDeptResultMap" type="emp">
+        <id column="emp_id" property="empId"></id>
+        <result column="emp_name" property="empName"></result>
+        <result column="age" property="age"></result>
+        <result column="gender" property="gender"></result>
+        <association property="dept"
+                     select="com.cherry.mapper.DeptMapper.GetByStepTwo"
+                     column="dept_id"></association>
+    </resultMap>
+    <select id="getById" resultMap="empResultMap">
+        select * from t_emp where emp_id = #{id};
+    </select>
+    <select id="getEmpDeptByEmpId" resultMap="empAndDeptResultMap">
+        select t_emp.*,t_dept.* from t_emp left join t_dept on t_emp.dept_id = t_dept.dept_id where t_emp.emp_id = #{empId};
+    </select>
+    <select id="getByStepOne" resultMap="empAndDeptResultMap">
+        select * from t_emp where emp_id = #{empId}
+    </select>
+    <select id="getDeptEmpStepTwo" resultType="com.cherry.entity.Emp">
+        select * from t_emp where dept_id = #{deptId}
+    </select>
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cherry.mapper.SelectMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user(username,password,age,gender,email) values(#{username},#{password},#{age},#{gender},#{email})
+    </insert>
+    <delete id="deleteMoreUser">
+        delete from t_user where id in (${ids})
+    </delete>
+
+    <select id="getUserById" resultType="com.cherry.entity.User">
+        select * from t_user where id = #{id}
+    </select>
+    <select id="getAllUser" resultType="com.cherry.entity.User">
+        select * from t_user
+    </select>
+    <select id="count" resultType="java.lang.Integer">
+        select count(*) from t_user
+    </select>
+    <!--模糊查询-->
+    <select id="selectBlur" resultType="com.cherry.entity.User">
+        <!--select * from t_user where username like "%"#{username}"%"-->
+        <!--select * from t_user where username like concat("%",#{username},"%")-->
+        select * from t_user where username like '%${username}%'
+    </select>
+    <select id="getUserList" resultType="com.cherry.entity.User">
+        select * from ${tableName}
+    </select>
+</mapper>
